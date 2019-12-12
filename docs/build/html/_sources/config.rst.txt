@@ -1,0 +1,21 @@
+EMR Configuration
+==================
+
+EMR configuration is controlled by the terraform `https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp/browse/aws_profiles/maps-contentops/cppedit/zoningservice <https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp/browse/aws_profiles/maps-contentops/cppedit/zoningservice>`__
+
+The service then uses the module defined at `https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp-modules/browse/zoning-service <https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp-modules/browse/zoning-service>`__
+
+Notes on configuration
+-------------------------
+
+- The subnet is related to the VPC, which has DCHP options that contain ``domain-name = net-172-29-16-0-20.tt3.com``
+  
+- In the context of EMR machines, this leads to instantiation of the process ``dnsmasq --listen-address=127.0.0.1 --synth-doain=net=172-29-16-0-20.tt3.com,172.29.16.0/20,ip-`` which runs the local DNS server that dynamically assigns host names and domains for IPs in the subnet.
+  
+- The file ``/etc/resolve.conf`` defines the local DNS before the Amazon DNS, then all forward and reverse DNS queries for IPs from the subdomain are handled by this local DNS.
+
+This setup causes problems for the zoning-service web application, which in communication with EMR receives host names reverse resolved to synth domain. Since the zoning-service application is running in the same subnet, it doesn't create the synth domain locally. This is resolved by adding the zoning-service web application to the ``node.eu-west-1-mapsco.maps-contentops.amiefarm.com`` domain as an entry in the ``/etc/resolve.conf``. The domain is handled by Consul.
+
+When the zoning-service receives an address such as ``ip-172-29-25-51.net-172-29-16-0-20.tt3.com``, the domain suffix is added and the DNS attempts to resolve the address ``ip-172-29-25-51.net-172-29-16-0-20.tt3.com.node.eu-west-1-mapsco.maps-contentops.amiefarm.com``
+
+Note that for this process to work, the Master and Core machines of the EMR cluster has to be registered in Consul under this kind of entry. This can be achived by downloading the Python script ``s3://maps-contentops/hadoop-aws/install_and_configure_consul.sh`` on the Master and Core machines and then running it. In addition, verify that the Route53 entry for ``hadoop.maps-contentops.amiefarm.com`` points to Master. 

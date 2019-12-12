@@ -1,0 +1,8 @@
+Reference Links
+================
+
+- ContentOps Zoning Service - `BulqQA <http://zoningservice.maps-contentops.amiefarm.com/zoningservice/info>`__
+
+- Live Cava Zoning Service (Legacy) - `AD <http://live-cava-cpp-r2.flatns.net/zoningservice/info>`__
+
+- `Zoning Module Repository <https://bitbucket.tomtomgroup.com/projects/PROD/repos/zoning-module/browse>`__ 

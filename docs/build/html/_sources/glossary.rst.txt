@@ -1,0 +1,10 @@
+Glossary
+=========
+
+.. glossary::
+
+   Morton tile
+     A *Morton tile* is used to map multidimensional data to one dimension. 
+   
+   Zone
+     A *zone* refers to a specific geographic area. 

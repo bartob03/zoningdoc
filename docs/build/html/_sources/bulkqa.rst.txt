@@ -1,0 +1,8 @@
+BULKQA (02.2019)
+==================
+
+*BulkQA* uses the ContentOps Zoning Service to perform QA validation. It's useful for the team because it supports skipping of empty tiles.
+
+Contact `Slawomir Caban <Slawomir.Caban@tomtom.com>`__ for additional details.
+
+.. note:: Original project administrators are `Patrick Syroit <Patrick.Syroit@tomtom.com>`__ and `Christel Fie <Christel.fie@tomtom.com>`__.

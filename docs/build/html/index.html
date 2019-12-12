@@ -1,0 +1,480 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Zoning Service API &#8212; Zoning Service API  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="#">Zoning Service API  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="zoning-service-api">
+<h1><a class="toc-backref" href="#id1">Zoning Service API</a><a class="headerlink" href="#zoning-service-api" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#zoning-service-api" id="id1">Zoning Service API</a><ul>
+<li><a class="reference internal" href="#overview" id="id2">Overview</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-api" id="id3">Service API</a><ul>
+<li><a class="reference internal" href="#parameter-values" id="id4">Parameter Values</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#zone-definition-creator-2018" id="id5">Zone Definition Creator (2018)</a></li>
+<li><a class="reference internal" href="#legacy" id="id6">Legacy</a></li>
+<li><a class="reference internal" href="#bulkqa-02-2019" id="id7">BULKQA (02.2019)</a></li>
+<li><a class="reference internal" href="#emr-zone-evaluation" id="id8">EMR Zone Evaluation</a></li>
+<li><a class="reference internal" href="#emr-configuration" id="id9">EMR Configuration</a><ul>
+<li><a class="reference internal" href="#notes-on-configuration" id="id10">Notes on configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#glossary" id="id11">Glossary</a></li>
+<li><a class="reference internal" href="#reference-links" id="id12">Reference Links</a></li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id2">Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The <em>Zoning Service</em> provides access to a collection of zones, with a zone being a single named geographic area.</p>
+<p>A <em>zone</em> is identified by a name and type:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="72%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>France.lle-de-France.Paris.Paris</td>
+<td>AA8</td>
+</tr>
+</tbody>
+</table>
+<p>A zone consists of a group of morton tiles at various levels with level 14 being the lowest level of tile. Level 14 tiles that occur at the border of a zone are accompanied by geometry defining the zone border within that tile.</p>
+<p>The Zoning Service is currently implemented in Java as a <strong>JAX-WS</strong> service. The data storage is implemented using <strong>HBase</strong>, although the storage mechanism is abstracted via the <strong>ZoneRepository</strong> interface.</p>
+</div>
+</div>
+<div class="section" id="service-api">
+<h1><a class="toc-backref" href="#id3">Service API</a><a class="headerlink" href="#service-api" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Method</th>
+<th class="head">Endpoint</th>
+<th class="head">Description</th>
+<th class="head">Example Request</th>
+<th class="head">Example Response</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>GET</td>
+<td>/status</td>
+<td>Returns application status.</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>GET</td>
+<td>/info</td>
+<td>Display data available in the web service (contents of this table).</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>GET</td>
+<td>/zone/{type}/{zoneName}?version=&lt;value&gt;</td>
+<td>Morton tiles, complete or partial, that the zone contains.</td>
+<td>/zone/AA7/Belgie.VlaamsGewest.Oost-Vlaanderen.Gent</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;België.Vlaams Gewest.Oost-Vlaanderen.Gent&quot;</span><span class="p">,</span>
+<span class="s2">&quot;type&quot;</span> <span class="p">:</span> <span class="s2">&quot;AA7&quot;</span><span class="p">,</span>
+<span class="s2">&quot;version&quot;</span> <span class="p">:</span> <span class="s2">&quot;12.4.1&quot;</span><span class="p">,</span>
+<span class="s2">&quot;geometry&quot;</span> <span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="s2">&quot;tiles&quot;</span> <span class="p">:</span> <span class="p">[[</span><span class="n">CPEQAE</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="mi">235422661</span><span class="p">,</span><span class="s2">&quot;POLYGON (((34216750 508996583, 34277344 508996583, ...)))&quot;</span><span class="p">],[</span><span class="n">CPEQAE</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span><span class="mi">235422681</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">]</span><span class="o">...</span> <span class="p">}</span>
+<span class="n">The</span> <span class="n">morton</span> <span class="n">tiles</span> <span class="n">that</span> <span class="n">are</span> <span class="n">completely</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">zone</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">have</span> <span class="n">polygons</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">response</span><span class="o">.</span>
+<span class="n">The</span> <span class="n">morton</span> <span class="n">tiles</span> <span class="n">that</span> <span class="n">are</span> <span class="n">partially</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">zone</span> <span class="n">do</span> <span class="n">have</span> <span class="n">geometry</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">response</span><span class="o">.</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>GET</td>
+<td>/zone/{type}/{zoneName}/related?version=&lt;value&gt;&amp;relatedType=&lt;value&gt;</td>
+<td>Gets the JSON representing the ZoneInfos describing zones that are geographically related to the target zone. This method can be used to find spatial relationships (i.e. within, contains) between zones of different types.</td>
+<td>/zone/AA7/België.Vlaams Gewest.Oost-Vlaanderen.Gent</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="o">&lt;</span><span class="n">stream</span> <span class="n">of</span> <span class="n">zones</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>GET</td>
+<td>/zone/{type}/{zoneName}/tiles?version=&lt;value&gt;&amp;level=&lt;value&gt;</td>
+<td>Gets zone tiles.</td>
+<td>/zone/AA7/België.Vlaams Gewest.Oost-Vlaanderen.Gent</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="o">&lt;</span><span class="n">stream</span> <span class="n">of</span> <span class="n">tiles</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>GET</td>
+<td>/zone/{type}/{zoneName}/tiles/{density}?version=&lt;value&gt;</td>
+<td>Gets zone tiles for specified density</td>
+<td>/zone/AA7/België.Vlaams Gewest.Oost-Vlaanderen.Gent</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="o">&lt;</span><span class="n">stream</span> <span class="n">of</span> <span class="n">density</span> <span class="n">tiles</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>GET</td>
+<td>/zoneview/{type}/{zoneName}?version=&lt;value&gt;&amp;level=&lt;value&gt;</td>
+<td>Shows page with zone view (visualization of multi-polygon).</td>
+<td>/zoneview/AA7/België.Vlaams Gewest.Oost-Vlaanderen.Gent</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="o">&lt;</span><span class="n">html</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>GET</td>
+<td>/zonesforgeometry/{wkt}?version=&lt;value&gt;&amp;type=&lt;value&gt;</td>
+<td>Retrieves zones for passed WKT geometry</td>
+<td>/zonesforgeometry/</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;BEL&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFCOUNTRY&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;FRA&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFCOUNTRY&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;BEL&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFDATASET&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;F19&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFDATASET&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">}]</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>GET</td>
+<td>/zonesintile/{tileLevel14}?version=&lt;value&gt;&amp;type=&lt;value&gt;&amp;level=&lt;value&gt;</td>
+<td>Zones that contain the Morton tile of this ID; Default level is 14 (param is not required)</td>
+<td>/zonesintile/14713859</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;BEL&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFCOUNTRY&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;FRA&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFCOUNTRY&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;BEL&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFDATASET&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;F19&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFDATASET&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">}]</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>GET</td>
+<td>/zonesforkeyword/{keyword}?version=&lt;value&gt;&amp;type=&lt;value&gt;</td>
+<td>Returns the breadcrumbs that contain the keyword.</td>
+<td>/zonesforkeyword/ledeberg</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;BEL&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFCOUNTRY&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span> <span class="o">...</span> <span class="p">]</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>GET</td>
+<td>/zonesforcoord/{longitude}/{latitude}?version=&lt;value&gt;&amp;type=&lt;value&gt;</td>
+<td>Zones on this location.</td>
+<td>/zonesforcoord/23071290/488238795</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;BEL&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFCOUNTRY&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;FRA&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFCOUNTRY&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;BEL&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFDATASET&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;F19&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFDATASET&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">}]</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>GET</td>
+<td>/zoneversions/{type}/{zoneName}</td>
+<td>All version of the given zone.</td>
+<td>/zoneversions/TIFDATASET/AND</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;AND&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFDATASET&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.4.1&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;AND&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;TIFDATASET&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;12.7.2&quot;</span><span class="p">}]</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>GET</td>
+<td>/getrel/{timestamp}</td>
+<td>Gets the release label for this timestamp (long).</td>
+<td>/getrel/1317420000000</td>
+<td>[CPEQAE:”11.10.1”]</td>
+</tr>
+<tr class="row-odd"><td>POST</td>
+<td>/zone</td>
+<td>Creates a new zone.</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">zone</span>
+<span class="n">Body</span><span class="p">:</span><span class="n">zoneJson</span>
+</pre></div>
+</div>
+</td>
+<td>CREATED</td>
+</tr>
+<tr class="row-even"><td>POST</td>
+<td>/tiles/{density}</td>
+<td>Adds zone density tiles.</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">tiles</span><span class="o">/</span><span class="n">target</span>
+<span class="n">Body</span><span class="p">:</span> <span class="n">WKT</span>
+</pre></div>
+</div>
+</td>
+<td><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OK</span>
+<span class="o">&lt;</span><span class="n">stream</span> <span class="n">of</span> <span class="n">density</span> <span class="n">tiles</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="parameter-values">
+<h2><a class="toc-backref" href="#id4">Parameter Values</a><a class="headerlink" href="#parameter-values" title="Permalink to this headline">¶</a></h2>
+<p>The following table provides additional details regarding the parameters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Parameter</td>
+<td>Format/Value</td>
+<td>Example</td>
+</tr>
+<tr class="row-even"><td>version</td>
+<td>yy.M.d.HH.mm</td>
+<td>“12.3.4” (represents 4/3/2012 0:00.00.000)</td>
+</tr>
+<tr class="row-odd"><td>version</td>
+<td>(empty)</td>
+<td>(displays the latest version)</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td>dataset</td>
+<td>?</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td>country</td>
+<td>?</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td>breadcrumbs</td>
+<td>?</td>
+</tr>
+<tr class="row-odd"><td>zonename</td>
+<td>&#160;</td>
+<td>“België.Vlaams Gewest.Oost-Vlaanderen.Gent”</td>
+</tr>
+<tr class="row-even"><td>tileLevel14</td>
+<td>morton tile level 14</td>
+<td>235026145</td>
+</tr>
+<tr class="row-odd"><td>keyword</td>
+<td>any string to search on</td>
+<td>“Ledeberg”</td>
+</tr>
+<tr class="row-even"><td>longitude, latitude</td>
+<td>Geographic Coordinate System (GCS)</td>
+<td>23071290, 488238795</td>
+</tr>
+<tr class="row-odd"><td>timestamp</td>
+<td>long</td>
+<td>1317420000000 (long representation of date)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><em>Type</em> is taken from the type value in the zone info JSON files consumed by the <em>zone-create-tool</em>. There is no ENUM in the code.</p>
+</div>
+</div>
+</div>
+<div class="section" id="zone-definition-creator-2018">
+<h1><a class="toc-backref" href="#id5">Zone Definition Creator (2018)</a><a class="headerlink" href="#zone-definition-creator-2018" title="Permalink to this headline">¶</a></h1>
+<p>The <em>Zone Definition Creator</em> uses WKT to create new zones in the Zoning Service.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p><a class="reference external" href="https://confluence.tomtomgroup.com/display/CMR/Zone+definition+zone+creator">Zone definition zone creator</a></p>
+<p class="last"><a class="reference external" href="http://help.tomtomgroup.com/ttpedia/wiki_tm/index.php/RMDSZOne_Creator/Functionality">RMDSZone Creator/Functionality</a></p>
+</div>
+</div>
+<div class="section" id="legacy">
+<h1><a class="toc-backref" href="#id6">Legacy</a><a class="headerlink" href="#legacy" title="Permalink to this headline">¶</a></h1>
+<p>Two Zone Service environments have existed together for some time now:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>Live Cava Zone Service</em> - stores mostly data set geometries.</li>
+<li><em>ContentOps Zone Service</em> - stores mostly zone geometries.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bulkqa-02-2019">
+<h1><a class="toc-backref" href="#id7">BULKQA (02.2019)</a><a class="headerlink" href="#bulkqa-02-2019" title="Permalink to this headline">¶</a></h1>
+<p><em>BulkQA</em> uses the ContentOps Zoning Service to perform QA validation. It’s useful for the team because it supports skipping of empty tiles.</p>
+<p>Contact <a class="reference external" href="mailto:Slawomir&#46;Caban&#37;&#52;&#48;tomtom&#46;com">Slawomir Caban</a> for additional details.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Original project administrators are <a class="reference external" href="mailto:Patrick&#46;Syroit&#37;&#52;&#48;tomtom&#46;com">Patrick Syroit</a> and <a class="reference external" href="mailto:Christel&#46;fie&#37;&#52;&#48;tomtom&#46;com">Christel Fie</a>.</p>
+</div>
+</div>
+<div class="section" id="emr-zone-evaluation">
+<h1><a class="toc-backref" href="#id8">EMR Zone Evaluation</a><a class="headerlink" href="#emr-zone-evaluation" title="Permalink to this headline">¶</a></h1>
+<p>Zones are evaluated by the <a class="reference external" href="https://bitbucket.tomtomgroup.com/projects/PROD/repos/zoning-module/browse/zone-create-tool">EMR application</a>.</p>
+<p>Artifacts producted by the compilation are named as <code class="docutils literal notranslate"><span class="pre">zone-create-tool-version_number-job.jar</span></code>.</p>
+<p>This artifact is produced on EMR by the job <a class="reference external" href="http://jenkins.maps-contentprocessing-prod.amiefarm.com:8080/view/BQA/job/BQA_Zone_Creator/">http://jenkins.maps-contentprocessing-prod.amiefarm.com:8080/view/BQA/job/BQA_Zone_Creator/</a></p>
+<p>Additional notes regarding the job are as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The job uploads the zone geometry as <strong>WKT</strong> to the <strong>EMR Master</strong> node.</li>
+<li>After uploading the zone geometry, the job starts the <code class="docutils literal notranslate"><span class="pre">yarn</span></code> application and issues the commands:</li>
+</ul>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yarn</span> <span class="o">--</span><span class="n">config</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">hbase</span><span class="o">/</span><span class="n">conf</span> <span class="n">jar</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">hadoop</span><span class="o">/</span><span class="n">zone</span><span class="o">-</span><span class="n">create</span><span class="o">-</span><span class="n">tool</span><span class="o">-</span><span class="n">version</span><span class="o">-</span><span class="n">job</span><span class="o">.</span><span class="n">jar</span> <span class="n">zone</span><span class="o">-</span><span class="n">create</span><span class="o">-</span><span class="n">tool</span> <span class="o">-</span><span class="n">i</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">hadoop</span><span class="o">/</span><span class="n">t</span> <span class="o">-</span><span class="n">p</span> <span class="n">aws_cpp_r2</span>
+</pre></div>
+</div>
+<p>The job uses the Hadoop command instead of <code class="docutils literal notranslate"><span class="pre">yarn</span></code> though the output is the same.</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">--</span> <span class="pre">config</span></code> is used to point to a custom configuration. Using the the default Hbase configuration <code class="docutils literal notranslate"><span class="pre">/etc/hbase/conf</span></code> prevents any issues when executing the application.</li>
+<li>The main application code can be debugged by running the yarn command in the terminal. The output is then displayed on the screen.</li>
+<li>The distributed functions log to Core node under <code class="docutils literal notranslate"><span class="pre">/var/log/hadoop-yarn/containers</span></code>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="emr-configuration">
+<h1><a class="toc-backref" href="#id9">EMR Configuration</a><a class="headerlink" href="#emr-configuration" title="Permalink to this headline">¶</a></h1>
+<p>EMR configuration is controlled by the terraform <a class="reference external" href="https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp/browse/aws_profiles/maps-contentops/cppedit/zoningservice">https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp/browse/aws_profiles/maps-contentops/cppedit/zoningservice</a></p>
+<p>The service then uses the module defined at <a class="reference external" href="https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp-modules/browse/zoning-service">https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp-modules/browse/zoning-service</a></p>
+<div class="section" id="notes-on-configuration">
+<h2><a class="toc-backref" href="#id10">Notes on configuration</a><a class="headerlink" href="#notes-on-configuration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>The subnet is related to the VPC, which has DCHP options that contain <code class="docutils literal notranslate"><span class="pre">domain-name</span> <span class="pre">=</span> <span class="pre">net-172-29-16-0-20.tt3.com</span></code></li>
+<li>In the context of EMR machines, this leads to instantiation of the process <code class="docutils literal notranslate"><span class="pre">dnsmasq</span> <span class="pre">--listen-address=127.0.0.1</span> <span class="pre">--synth-doain=net=172-29-16-0-20.tt3.com,172.29.16.0/20,ip-</span></code> which runs the local DNS server that dynamically assigns host names and domains for IPs in the subnet.</li>
+<li>The file <code class="docutils literal notranslate"><span class="pre">/etc/resolve.conf</span></code> defines the local DNS before the Amazon DNS, then all forward and reverse DNS queries for IPs from the subdomain are handled by this local DNS.</li>
+</ul>
+<p>This setup causes problems for the zoning-service web application, which in communication with EMR receives host names reverse resolved to synth domain. Since the zoning-service application is running in the same subnet, it doesn’t create the synth domain locally. This is resolved by adding the zoning-service web application to the <code class="docutils literal notranslate"><span class="pre">node.eu-west-1-mapsco.maps-contentops.amiefarm.com</span></code> domain as an entry in the <code class="docutils literal notranslate"><span class="pre">/etc/resolve.conf</span></code>. The domain is handled by Consul.</p>
+<p>When the zoning-service receives an address such as <code class="docutils literal notranslate"><span class="pre">ip-172-29-25-51.net-172-29-16-0-20.tt3.com</span></code>, the domain suffix is added and the DNS attempts to resolve the address <code class="docutils literal notranslate"><span class="pre">ip-172-29-25-51.net-172-29-16-0-20.tt3.com.node.eu-west-1-mapsco.maps-contentops.amiefarm.com</span></code></p>
+<p>Note that for this process to work, the Master and Core machines of the EMR cluster has to be registered in Consul under this kind of entry. This can be achived by downloading the Python script <code class="docutils literal notranslate"><span class="pre">s3://maps-contentops/hadoop-aws/install_and_configure_consul.sh</span></code> on the Master and Core machines and then running it. In addition, verify that the Route53 entry for <code class="docutils literal notranslate"><span class="pre">hadoop.maps-contentops.amiefarm.com</span></code> points to Master.</p>
+</div>
+</div>
+<div class="section" id="glossary">
+<h1><a class="toc-backref" href="#id11">Glossary</a><a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+<dl class="glossary docutils">
+<dt id="term-morton-tile">Morton tile</dt>
+<dd>A <em>Morton tile</em> is used to map multidimensional data to one dimension.</dd>
+<dt id="term-zone">Zone</dt>
+<dd>A <em>zone</em> refers to a specific geographic area.</dd>
+</dl>
+</div>
+<div class="section" id="reference-links">
+<h1><a class="toc-backref" href="#id12">Reference Links</a><a class="headerlink" href="#reference-links" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>ContentOps Zoning Service - <a class="reference external" href="http://zoningservice.maps-contentops.amiefarm.com/zoningservice/info">BulqQA</a></li>
+<li>Live Cava Zoning Service (Legacy) - <a class="reference external" href="http://live-cava-cpp-r2.flatns.net/zoningservice/info">AD</a></li>
+<li><a class="reference external" href="https://bitbucket.tomtomgroup.com/projects/PROD/repos/zoning-module/browse">Zoning Module Repository</a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Zoning Service API</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-api">Service API</a><ul>
+<li><a class="reference internal" href="#parameter-values">Parameter Values</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#zone-definition-creator-2018">Zone Definition Creator (2018)</a></li>
+<li><a class="reference internal" href="#legacy">Legacy</a></li>
+<li><a class="reference internal" href="#bulkqa-02-2019">BULKQA (02.2019)</a></li>
+<li><a class="reference internal" href="#emr-zone-evaluation">EMR Zone Evaluation</a></li>
+<li><a class="reference internal" href="#emr-configuration">EMR Configuration</a><ul>
+<li><a class="reference internal" href="#notes-on-configuration">Notes on configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#glossary">Glossary</a></li>
+<li><a class="reference internal" href="#reference-links">Reference Links</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="#">Zoning Service API  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, BB.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

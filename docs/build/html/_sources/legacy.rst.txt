@@ -1,0 +1,7 @@
+Legacy
+========
+
+Two Zone Service environments have existed together for some time now:
+
+  - *Live Cava Zone Service* - stores mostly data set geometries.
+  - *ContentOps Zone Service* - stores mostly zone geometries.

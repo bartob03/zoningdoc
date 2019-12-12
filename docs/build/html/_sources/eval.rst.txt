@@ -1,0 +1,24 @@
+EMR Zone Evaluation
+=====================
+
+Zones are evaluated by the `EMR application <https://bitbucket.tomtomgroup.com/projects/PROD/repos/zoning-module/browse/zone-create-tool>`__.
+
+Artifacts producted by the compilation are named as ``zone-create-tool-version_number-job.jar``.
+
+This artifact is produced on EMR by the job http://jenkins.maps-contentprocessing-prod.amiefarm.com:8080/view/BQA/job/BQA_Zone_Creator/](http://jenkins.maps-contentprocessing-prod.amiefarm.com:8080/view/BQA/job/BQA_Zone_Creator/
+
+Additional notes regarding the job are as follows:
+
+  * The job uploads the zone geometry as WKT to the EMR Master node.
+  
+  * After uploading the zone geometry, the job starts the yarn application and issues the command:
+
+    ``yarn --config /etc/hbase/conf jar /home/hadoop/zone-create-tool-version-job.jar zone-create-tool -i /home/hadoop/t -p aws_cpp_r2``
+
+  * The job uses the Hadoop command instead of yarn though the output is the same.
+  
+  * ``-- config`` used to point to a custom configuration. Using the the default Hbase configuration ``/etc/hbase/conf`` prevents any issues when executing the application.
+  
+  * The main application code can be debugged by running the yarn command in the terminal. The output is then displayed on the screen.
+  
+  * The distributed functions log to Core node under ``/var/log/hadoop-yarn/containers``.

@@ -1,0 +1,130 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>6. EMR Configuration &#8212; Zoning Service API  documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. Glossary" href="glossary.html" />
+    <link rel="prev" title="5. EMR Zone Evaluation" href="eval.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="glossary.html" title="7. Glossary"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="eval.html" title="5. EMR Zone Evaluation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Zoning Service API  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="emr-configuration">
+<h1>6. EMR Configuration<a class="headerlink" href="#emr-configuration" title="Permalink to this headline">¶</a></h1>
+<p>EMR configuration is controlled by the terraform <a class="reference external" href="https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp/browse/aws_profiles/maps-contentops/cppedit/zoningservice">https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp/browse/aws_profiles/maps-contentops/cppedit/zoningservice</a></p>
+<p>The service then uses the module defined at <a class="reference external" href="https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp-modules/browse/zoning-service">https://bitbucket.tomtomgroup.com/projects/CPPINFRA/repos/cpp-modules/browse/zoning-service</a></p>
+<div class="section" id="notes-on-configuration">
+<h2>6.1. Notes on configuration<a class="headerlink" href="#notes-on-configuration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>The subnet is related to the VPC, which has DCHP options that contain <code class="docutils literal notranslate"><span class="pre">domain-name</span> <span class="pre">=</span> <span class="pre">net-172-29-16-0-20.tt3.com</span></code></li>
+<li>In the context of EMR machines, this leads to instantiation of the process <code class="docutils literal notranslate"><span class="pre">dnsmasq</span> <span class="pre">--listen-address=127.0.0.1</span> <span class="pre">--synth-doain=net=172-29-16-0-20.tt3.com,172.29.16.0/20,ip-</span></code> which runs the local DNS server that dynamically assigns host names and domains for IPs in the subnet.</li>
+<li>The file <code class="docutils literal notranslate"><span class="pre">/etc/resolve.conf</span></code> defines the local DNS before the Amazon DNS, then all forward and reverse DNS queries for IPs from the subdomain are handled by this local DNS.</li>
+</ul>
+<p>This setup causes problems for the zoning-service web application, which in communication with EMR receives host names reverse resolved to synth domain. Since the zoning-service application is running in the same subnet, it doesn’t create the synth domain locally. This is resolved by adding the zoning-service web application to the <code class="docutils literal notranslate"><span class="pre">node.eu-west-1-mapsco.maps-contentops.amiefarm.com</span></code> domain as an entry in the <code class="docutils literal notranslate"><span class="pre">/etc/resolve.conf</span></code>. The domain is handled by Consul.</p>
+<p>When the zoning-service receives an address such as <code class="docutils literal notranslate"><span class="pre">ip-172-29-25-51.net-172-29-16-0-20.tt3.com</span></code>, the domain suffix is added and the DNS attempts to resolve the address <code class="docutils literal notranslate"><span class="pre">ip-172-29-25-51.net-172-29-16-0-20.tt3.com.node.eu-west-1-mapsco.maps-contentops.amiefarm.com</span></code></p>
+<p>Note that for this process to work, the Master and Core machines of the EMR cluster has to be registered in Consul under this kind of entry. This can be achived by downloading the Python script <code class="docutils literal notranslate"><span class="pre">s3://maps-contentops/hadoop-aws/install_and_configure_consul.sh</span></code> on the Master and Core machines and then running it. In addition, verify that the Route53 entry for <code class="docutils literal notranslate"><span class="pre">hadoop.maps-contentops.amiefarm.com</span></code> points to Master.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6. EMR Configuration</a><ul>
+<li><a class="reference internal" href="#notes-on-configuration">6.1. Notes on configuration</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="eval.html"
+                        title="previous chapter">5. EMR Zone Evaluation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="glossary.html"
+                        title="next chapter">7. Glossary</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/config.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="glossary.html" title="7. Glossary"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="eval.html" title="5. EMR Zone Evaluation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Zoning Service API  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, BB.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>
