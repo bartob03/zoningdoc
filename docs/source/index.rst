@@ -17,7 +17,7 @@ Zoning Service API
 Overview
 ----------
 
-The *Zoning Service* provides access to a collection of zones, with a zone being a single named geographic area. 
+The *Zoning Service* provides access to a collection of zones, with a zone being a single named geographic area.
 
 A *zone* is identified by a name and type:
 
@@ -35,6 +35,7 @@ Service API
 =============
 
 .. list-table::
+   :widths: 5, 5, 10, 10, 70
    :header-rows: 1
 
    * - Method
@@ -180,8 +181,8 @@ Parameter Values
 
 The following table provides additional details regarding the parameters.
 
-.. list-table::  
-   
+.. list-table::
+
 
   * - Parameter
     - Format/Value
@@ -226,7 +227,7 @@ The following table provides additional details regarding the parameters.
 Zone Definition Creator (2018)
 ===============================
 
-The *Zone Definition Creator* uses WKT to create new zones in the Zoning Service. 
+The *Zone Definition Creator* uses WKT to create new zones in the Zoning Service.
 
 .. seealso::
 
@@ -263,7 +264,7 @@ This artifact is produced on EMR by the job `http://jenkins.maps-contentprocessi
 Additional notes regarding the job are as follows:
 
   - The job uploads the zone geometry as **WKT** to the **EMR Master** node.
-  
+
   - After uploading the zone geometry, the job starts the ``yarn`` application and issues the commands:
 
 ::
@@ -272,11 +273,11 @@ Additional notes regarding the job are as follows:
 
 
 The job uses the Hadoop command instead of ``yarn`` though the output is the same.
-  
+
   - ``-- config`` is used to point to a custom configuration. Using the the default Hbase configuration ``/etc/hbase/conf`` prevents any issues when executing the application.
-  
+
   - The main application code can be debugged by running the yarn command in the terminal. The output is then displayed on the screen.
-  
+
   - The distributed functions log to Core node under ``/var/log/hadoop-yarn/containers``.
 
 EMR Configuration
@@ -290,16 +291,16 @@ Notes on configuration
 -------------------------
 
 - The subnet is related to the VPC, which has DCHP options that contain ``domain-name = net-172-29-16-0-20.tt3.com``
-  
+
 - In the context of EMR machines, this leads to instantiation of the process ``dnsmasq --listen-address=127.0.0.1 --synth-doain=net=172-29-16-0-20.tt3.com,172.29.16.0/20,ip-`` which runs the local DNS server that dynamically assigns host names and domains for IPs in the subnet.
-  
+
 - The file ``/etc/resolve.conf`` defines the local DNS before the Amazon DNS, then all forward and reverse DNS queries for IPs from the subdomain are handled by this local DNS.
 
 This setup causes problems for the zoning-service web application, which in communication with EMR receives host names reverse resolved to synth domain. Since the zoning-service application is running in the same subnet, it doesn't create the synth domain locally. This is resolved by adding the zoning-service web application to the ``node.eu-west-1-mapsco.maps-contentops.amiefarm.com`` domain as an entry in the ``/etc/resolve.conf``. The domain is handled by Consul.
 
 When the zoning-service receives an address such as ``ip-172-29-25-51.net-172-29-16-0-20.tt3.com``, the domain suffix is added and the DNS attempts to resolve the address ``ip-172-29-25-51.net-172-29-16-0-20.tt3.com.node.eu-west-1-mapsco.maps-contentops.amiefarm.com``
 
-Note that for this process to work, the Master and Core machines of the EMR cluster has to be registered in Consul under this kind of entry. This can be achived by downloading the Python script ``s3://maps-contentops/hadoop-aws/install_and_configure_consul.sh`` on the Master and Core machines and then running it. In addition, verify that the Route53 entry for ``hadoop.maps-contentops.amiefarm.com`` points to Master. 
+Note that for this process to work, the Master and Core machines of the EMR cluster has to be registered in Consul under this kind of entry. This can be achived by downloading the Python script ``s3://maps-contentops/hadoop-aws/install_and_configure_consul.sh`` on the Master and Core machines and then running it. In addition, verify that the Route53 entry for ``hadoop.maps-contentops.amiefarm.com`` points to Master.
 
 Glossary
 =========
@@ -307,10 +308,10 @@ Glossary
 .. glossary::
 
    Morton tile
-     A *Morton tile* is used to map multidimensional data to one dimension. 
-   
+     A *Morton tile* is used to map multidimensional data to one dimension.
+
    Zone
-     A *zone* refers to a specific geographic area. 
+     A *zone* refers to a specific geographic area.
 
 Reference Links
 ================
@@ -319,5 +320,4 @@ Reference Links
 
 - Live Cava Zoning Service (Legacy) - `AD <http://live-cava-cpp-r2.flatns.net/zoningservice/info>`__
 
-- `Zoning Module Repository <https://bitbucket.tomtomgroup.com/projects/PROD/repos/zoning-module/browse>`__ 
-
+- `Zoning Module Repository <https://bitbucket.tomtomgroup.com/projects/PROD/repos/zoning-module/browse>`__
