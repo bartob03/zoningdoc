@@ -183,7 +183,6 @@ The following table provides additional details regarding the parameters.
 
 .. list-table::
 
-
   * - Parameter
     - Format/Value
     - Example
